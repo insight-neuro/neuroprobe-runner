@@ -151,9 +151,9 @@ class NeuroprobeLiteConfig(NeuroprobeConfig): ...  # Equivalent to base config.
 
 @chz.chz
 class NeuroprobeNanoConfig(NeuroprobeConfig):
-    max_samples: int = 1000
-    num_cv_folds: int = 2
-    subject_trials: list[tuple[int, int]] = [
+    max_samples = 1000
+    num_cv_folds = 2
+    subject_trials = [
         (1, 1),
         (2, 4),
         (3, 1),
@@ -167,8 +167,8 @@ class NeuroprobeNanoConfig(NeuroprobeConfig):
 
 
 class NeurprobeFullConfig(NeuroprobeConfig):
-    max_samples: None
-    subject_trials: list[tuple[int, int]] = [
+    max_samples = None
+    subject_trials = [
         (1, 0),
         (1, 1),
         (1, 2),
