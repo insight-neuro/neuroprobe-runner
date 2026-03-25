@@ -15,7 +15,7 @@ load_dotenv()
 
 from neuroprobe import NeuroprobeConfig  # noqa: E402
 
-cfg = NeuroprobeConfig(eval_name="figure")
+cfg = NeuroprobeConfig()
 
 ### PARSE ARGUMENTS ###
 
@@ -113,7 +113,7 @@ task_name_mapping = {
 subject_trials = cfg.subject_trials
 if split_type == "CrossSubject":
     subject_trials = [
-        (s, t) for s, t in subject_trials if s != cfg.ds_dm_train_subject_id
+        (s, t) for s, t in subject_trials if s != cfg.cross_subject_train_subject_id
     ]
 
 ### DEFINE RESULT PARSING FUNCTIONS ###
@@ -295,9 +295,9 @@ legend_ax = fig.add_subplot(gs[0, first_ax_n_cols:])
 legend_ax.axis("off")  # Hide the axis
 
 # Create proxy artists for the legend
-handles = [plt.Rectangle((0, 0), 1, 1, color=model["color"]) for model in models]
-chance_line = plt.Line2D([0], [0], color="black", linestyle="--", alpha=0.5)
-handles.append(chance_line)
+handles = [plt.Rectangle((0, 0), 1, 1, color=model["color"]) for model in models]  # type: ignore
+chance_line = plt.Line2D([0], [0], color="black", linestyle="--", alpha=0.5)  # type: ignore
+handles.append(chance_line)  # type: ignore
 
 # Add legend to the legend axis
 legend_ax.legend(

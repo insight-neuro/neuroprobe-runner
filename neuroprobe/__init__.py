@@ -15,6 +15,7 @@ from .config import (
     NeuroprobeNanoConfig,
     NeurprobeFullConfig,
 )
+from .dataset import BrainTreebankDataset
 from .runner import NeuroprobeRunner
 from .splits import (
     cross_session_splits,
@@ -33,4 +34,5 @@ __all__ = [
     "within_session_splits",
     "BrainTreebankSubject",
     "NeuroprobeRunner",
+    "BrainTreebankDataset",
 ]

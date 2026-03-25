@@ -6,7 +6,8 @@ from typing import Any, ClassVar
 
 import numpy as np
 import torch
-from torch.utils.data import Dataset
+
+from neuroprobe.dataset import BrainTreebankDataset
 
 from .config import NeuroprobeConfig
 from .splits import cross_session_splits, cross_subject_splits, within_session_splits
@@ -16,7 +17,31 @@ logger = logging.getLogger(__name__)
 
 
 class NeuroprobeRunner(ABC):
-    """Interface for running the standard Neuroprobe evaluation for leaderboard submission."""
+    """Interface for running the standard Neuroprobe evaluation for leaderboard submission.
+
+    Users should fill in the following class variables to provide metadata about their model:
+
+    - model_name: The name of the model being evaluated.
+    - description: A short description of the model/method.
+    - author: The name of the author.
+    - organization: The author's affiliation.
+    - organization_url: The homepage of the organization.
+
+    Additionally, the users must implement the following class methods:
+
+    - finetune(cls, train_ds, data_slice, val_ds, *args, **kwargs) -> ctx:
+        This method should define the finetuning procedure on the training dataset and return any necessary context for evaluation.
+    - evaluate(cls, ctx, test_ds, data_slice, *args, **kwargs) -> dict[str, Any]:
+        This method should define the evaluation procedure on the test dataset using the context returned by finetune and return a dictionary of evaluation results.
+
+    To run, the easiest way is using chz's nested entry point:
+
+    ```py
+    class Runner(NeuroprobeRunner): ...
+
+    chz.nested_entrypoint(Runner.run)
+    ```
+    """
 
     model_name: ClassVar[str]
     """Model evaluated."""
@@ -40,6 +65,7 @@ class NeuroprobeRunner(ABC):
 
         data_idx_from = int(cfg.word_onset_window_start * cfg.sampling_rate)
         data_idx_to = int((1 + cfg.word_onset_window_end) * cfg.sampling_rate)
+        data_slice = slice(data_idx_from, data_idx_to)
 
         for split in cfg.eval_splits:
             split_dir = root_dir / split
@@ -117,8 +143,10 @@ class NeuroprobeRunner(ABC):
                         val_ds = fold["val_dataset"]
                         test_ds = fold["test_dataset"]
 
-                        ctx = cls.finetune(train_ds, val_ds, *args, **kwargs)
-                        fold_results = cls.evaluate(ctx, test_ds, *args, **kwargs)
+                        ctx = cls.finetune(
+                            train_ds, val_ds, data_slice, *args, **kwargs
+                        )  # type: ignore[return-value]
+                        fold_results = cls.evaluate(ctx, test_ds, *args, **kwargs)  # type: ignore[return-value]
                         trial_results["folds"].append(fold_results)
 
                     results["evaluation_results"][trial_session_tag]["population"][
@@ -132,7 +160,14 @@ class NeuroprobeRunner(ABC):
 
     @classmethod
     @abstractmethod
-    def finetune(cls, train_ds: Dataset, val_ds: Dataset, *args, **kwargs) -> Any:
+    def finetune(
+        cls,
+        train_ds: BrainTreebankDataset,
+        val_ds: BrainTreebankDataset,
+        data_slice: slice,
+        *args,
+        **kwargs,
+    ) -> Any:
         """Finetune a model on the training dataset and evaluate on the validation dataset.
 
         This method should be implemented by subclasses to define the specific finetuning procedure.
@@ -140,6 +175,7 @@ class NeuroprobeRunner(ABC):
         Args:
             train_ds (BrainTreebankDataset): The training dataset.
             val_ds (BrainTreebankDataset): The validation dataset.
+            data_slice (slice): The slice of the data to use for training and evaluation, based on the word onset window defined in the configuration.
 
         Returns:
             This should return a context object that will be passed to the evaluate method, containing any necessary information for evaluation.
@@ -148,7 +184,9 @@ class NeuroprobeRunner(ABC):
 
     @classmethod
     @abstractmethod
-    def evaluate(cls, ctx: Any, test_ds: Dataset, *args, **kwargs) -> dict[str, Any]:
+    def evaluate(
+        cls, ctx: Any, test_ds: BrainTreebankDataset, *args, **kwargs
+    ) -> dict[str, Any]:
         """Evaluate a model on the test dataset.
 
         Args:
