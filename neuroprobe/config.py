@@ -1,4 +1,5 @@
 import os
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from types import MappingProxyType
 from typing import Literal, get_args
@@ -9,7 +10,7 @@ from chz.validators import ge, lt
 
 from .load import electrodes
 
-type RegressionTask = Literal[
+REGRESSION_TASKS = [
     "frame_brightness",
     "global_flow",
     "local_flow",
@@ -25,35 +26,35 @@ type RegressionTask = Literal[
     "word_index",
 ]
 
-type ClassificationTask = Literal[
+CLASSIFICATION_TASKS = [
     "word_head_pos",
     "word_part_speech",
 ]
 
-type Task = RegressionTask | ClassificationTask
+Task = Literal[*REGRESSION_TASKS, *CLASSIFICATION_TASKS]
 
-type split = Literal["within_session", "cross_subject", "cross_session"]
+split = Literal["within_session", "cross_subject", "cross_session"]
 
 
 @chz.chz(typecheck=True)
 class NeuroprobeConfig:
     # ======= Paths =======
 
-    data_dir: Path = chz.field(
+    data_dir: Path | str = chz.field(
         default_factory=lambda: Path(os.environ["ROOT_DIR_BRAINTREEBANK"]),
         doc="Root directory of the Braintreebank dataset.",
     )
 
-    results_dir: Path = Path("results")
+    results_dir: Path | str = Path("results")
     """Directory where evaluation outputs are stored.
     Should be shared across runs for leaderboard comparability."""
 
     # ======= Run Settings =======
 
-    tasks: list[Task] = chz.field(default_factory=lambda: get_args(Task))
+    tasks: Sequence[Task] = chz.field(default_factory=lambda: get_args(Task))
     """Tasks to evaluate. Defaults to all available tasks."""
 
-    eval_splits: list[split] = chz.field(default_factory=lambda: get_args(split))
+    eval_splits: Sequence[split] = chz.field(default_factory=lambda: get_args(split))
     """Evaluation splits to run:\n- within_session\n- cross_session\n- cross_subject\n\nDefaults to all splits."""
 
     # ======= Evaluation Settings =======
@@ -70,20 +71,22 @@ class NeuroprobeConfig:
     max_samples: int | None = 3500
     """Max number of samples to use in a dataset. If None, use all samples"""
 
-    subject_trials: list[tuple[int, int]] = chz.field(default_factory=lambda: [ # structured as (subject_id, trial_id)
-        (1, 1),
-        (1, 2),
-        (2, 0),
-        (2, 4),
-        (3, 0),
-        (3, 1),
-        (4, 0),
-        (4, 1),
-        (7, 0),
-        (7, 1),
-        (10, 0),
-        (10, 1),
-    ])
+    subject_trials: Sequence[tuple[int, int]] = chz.field(
+        default_factory=lambda: [  # structured as (subject_id, trial_id)
+            (1, 1),
+            (1, 2),
+            (2, 0),
+            (2, 4),
+            (3, 0),
+            (3, 1),
+            (4, 0),
+            (4, 1),
+            (7, 0),
+            (7, 1),
+            (10, 0),
+            (10, 1),
+        ]
+    )
     """Subjects and trials to use for evaluation, structured as a list of (subject_id, trial_id) tuples."""
 
     random_seed: int = 42
@@ -122,7 +125,7 @@ class NeuroprobeConfig:
 
     # ====== Structural information about the dataset ======
 
-    electrodes: dict[str, list[str]] = chz.field(
+    electrodes: Mapping[str, list[str]] = chz.field(
         default_factory=lambda: electrodes("lite")
     )
     """For each subject, the list of electrodes to use for evaluation. Structured as a dict: subject_id -> list of electrode names."""
@@ -153,46 +156,50 @@ class NeuroprobeLiteConfig(NeuroprobeConfig): ...  # Equivalent to base config.
 class NeuroprobeNanoConfig(NeuroprobeConfig):
     max_samples: int | None = 1000
     num_cv_folds: int = 2
-    subject_trials: list[tuple[int, int]]= chz.field(default_factory=lambda: [
-        (1, 1),
-        (2, 4),
-        (3, 1),
-        (4, 0),
-        (7, 1),
-        (10, 1),
-    ])
-    electrodes: dict[str, list[str]] = chz.field(
+    subject_trials: Sequence[tuple[int, int]] = chz.field(
+        default_factory=lambda: [
+            (1, 1),
+            (2, 4),
+            (3, 1),
+            (4, 0),
+            (7, 1),
+            (10, 1),
+        ]
+    )
+    electrodes: Mapping[str, list[str]] = chz.field(
         default_factory=lambda: electrodes("nano")
     )
 
 
 class NeurprobeFullConfig(NeuroprobeConfig):
     max_samples: int | None = None
-    subject_trials: list[tuple[int, int]] = chz.field(default_factory=lambda: [
-        (1, 0),
-        (1, 1),
-        (1, 2),
-        (2, 0),
-        (2, 1),
-        (2, 2),
-        (2, 3),
-        (2, 4),
-        (2, 5),
-        (2, 6),
-        (3, 0),
-        (3, 1),
-        (3, 2),
-        (4, 0),
-        (4, 1),
-        (4, 2),
-        (5, 0),
-        (6, 0),
-        (6, 1),
-        (6, 4),
-        (7, 0),
-        (7, 1),
-        (8, 0),
-        (9, 0),
-        (10, 0),
-        (10, 1),
-    ])
+    subject_trials: Sequence[tuple[int, int]] = chz.field(
+        default_factory=lambda: [
+            (1, 0),
+            (1, 1),
+            (1, 2),
+            (2, 0),
+            (2, 1),
+            (2, 2),
+            (2, 3),
+            (2, 4),
+            (2, 5),
+            (2, 6),
+            (3, 0),
+            (3, 1),
+            (3, 2),
+            (4, 0),
+            (4, 1),
+            (4, 2),
+            (5, 0),
+            (6, 0),
+            (6, 1),
+            (6, 4),
+            (7, 0),
+            (7, 1),
+            (8, 0),
+            (9, 0),
+            (10, 0),
+            (10, 1),
+        ]
+    )

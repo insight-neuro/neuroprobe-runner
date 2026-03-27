@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import torch
@@ -69,22 +71,19 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
         # Set up a local random state with the provided seed
         self.rng = np.random.RandomState(cfg.random_seed)
 
-        assert task in all_tasks, f"task must be one of {all_tasks}, not {task}"
+        if task not in all_tasks:
+            raise ValueError(f"Task must be one of {all_tasks}, not {task}")
+        if (subject.subject_id, trial_id) not in cfg.subject_trials:
+            raise ValueError(
+                f"Subject {subject.subject_id} trial {trial_id} not in {cfg.__class__.__name__}.subject_trials"
+            )
 
         self.cfg = cfg
         self.subject = subject
         self.trial_id = trial_id
         self.task = task
 
-        self.start_pre_word_onset = int(cfg.word_onset_window_start * cfg.sampling_rate)
-        self.end_post_word_onset = int(cfg.word_onset_window_end * cfg.sampling_rate)
-
         self.build_label_indices()
-
-        if (subject.subject_id, self.trial_id) not in cfg.subject_trials:
-            raise ValueError(
-                f"Subject {subject.subject_id} trial {self.trial_id} not in {cfg.__class__.__name__}.subject_trials"
-            )
 
     def build_label_indices(self):
         task_remapped = self.task
@@ -104,7 +103,7 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
 
         # Add the original features from braintreebank to the all_words_df
         transcript_file_path = (
-            self.cfg.data_dir / f"transcripts/{movie_name}/features.csv"
+            Path(self.cfg.data_dir) / f"transcripts/{movie_name}/features.csv"
         )
         original_features_df = pd.read_csv(transcript_file_path).set_index("Unnamed: 0")
 
@@ -302,12 +301,14 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
         else:
             row = self.all_words_df.iloc[word_index]
 
-        est_idx = int(row["est_idx"]) - self.start_pre_word_onset
-        est_end_idx = est_idx + self.start_pre_word_onset + self.end_post_word_onset
+        est_idx = row["est_idx"] // self.cfg.sampling_rate
+        start_time = est_idx - self.cfg.word_onset_window_start
+        end_time = est_idx + self.cfg.word_onset_window_end
 
         ieeg, channels = self.subject.load_neural_data(
-            self.trial_id, start=est_idx, end=est_end_idx
+            self.trial_id, start=start_time, end=end_time
         )
+        ieeg.to(dtype=self.cfg.tensor_dtype)
 
         return BrainFeature(
             data=ieeg,
