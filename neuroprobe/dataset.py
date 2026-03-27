@@ -312,5 +312,6 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
         return BrainFeature(
             data=ieeg,
             channels=channels,
+            sampling_rate=self.cfg.sampling_rate,
             label=label,
         )

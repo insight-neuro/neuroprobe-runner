@@ -70,7 +70,7 @@ class NeuroprobeConfig:
     max_samples: int | None = 3500
     """Max number of samples to use in a dataset. If None, use all samples"""
 
-    subject_trials: list[tuple[int, int]] = [  # structured as (subject_id, trial_id)
+    subject_trials: list[tuple[int, int]] = chz.field(default_factory=lambda: [ # structured as (subject_id, trial_id)
         (1, 1),
         (1, 2),
         (2, 0),
@@ -83,7 +83,7 @@ class NeuroprobeConfig:
         (7, 1),
         (10, 0),
         (10, 1),
-    ]
+    ])
     """Subjects and trials to use for evaluation, structured as a list of (subject_id, trial_id) tuples."""
 
     random_seed: int = 42
@@ -151,24 +151,24 @@ class NeuroprobeLiteConfig(NeuroprobeConfig): ...  # Equivalent to base config.
 
 @chz.chz
 class NeuroprobeNanoConfig(NeuroprobeConfig):
-    max_samples = 1000
-    num_cv_folds = 2
-    subject_trials = [
+    max_samples: int | None = 1000
+    num_cv_folds: int = 2
+    subject_trials: list[tuple[int, int]]= chz.field(default_factory=lambda: [
         (1, 1),
         (2, 4),
         (3, 1),
         (4, 0),
         (7, 1),
         (10, 1),
-    ]
+    ])
     electrodes: dict[str, list[str]] = chz.field(
         default_factory=lambda: electrodes("nano")
     )
 
 
 class NeurprobeFullConfig(NeuroprobeConfig):
-    max_samples = None
-    subject_trials = [
+    max_samples: int | None = None
+    subject_trials: list[tuple[int, int]] = chz.field(default_factory=lambda: [
         (1, 0),
         (1, 1),
         (1, 2),
@@ -195,4 +195,4 @@ class NeurprobeFullConfig(NeuroprobeConfig):
         (9, 0),
         (10, 0),
         (10, 1),
-    ]
+    ])
