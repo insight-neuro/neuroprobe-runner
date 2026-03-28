@@ -3,9 +3,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
-from crane.core.featurizer import BrainFeature
 
 from .config import NeuroprobeConfig, Task
+from .feature import NeuroprobeFeature
 from .load import get_movie_name, pitch_volume_features, time_alignment_features
 from .subject import BrainTreebankSubject
 
@@ -285,7 +285,7 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
     def __len__(self):
         return self.n_samples
 
-    def __getitem__(self, idx: int) -> BrainFeature:
+    def __getitem__(self, idx: int) -> NeuroprobeFeature:
         if idx >= self.n_samples:
             raise IndexError(
                 f"Index {idx} out of bounds for dataset of size {self.n_samples}"
@@ -308,11 +308,12 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
         ieeg, channels = self.subject.load_neural_data(
             self.trial_id, start=start_time, end=end_time
         )
-        ieeg.to(dtype=self.cfg.tensor_dtype)
 
-        return BrainFeature(
-            data=ieeg,
+        feat = NeuroprobeFeature(
+            ieeg=ieeg,
             channels=channels,
             sampling_rate=self.cfg.sampling_rate,
             label=label,
         )
+        feat = feat.to(self.cfg.tensor_dtype)
+        return feat

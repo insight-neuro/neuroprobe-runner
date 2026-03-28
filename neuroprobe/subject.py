@@ -2,6 +2,7 @@ import torch
 from crane.data import CraneDataset, Subjects
 from crane.data.structures import ChannelDict
 from crane.preprocess import subset_electrodes
+from jaxtyping import Float
 from torch import Tensor
 from torch_brain.dataset import DatasetIndex
 
@@ -34,7 +35,7 @@ class BrainTreebankSubject:
 
     def load_neural_data(
         self, trial_id: int, start: float, end: float
-    ) -> tuple[Tensor, ChannelDict]:
+    ) -> tuple[Float[Tensor, "n_channels n_timepoints"], ChannelDict]:
         """Load neural data for the given trial and time window."""
         recording_id = f"sub-{self.subject_id:03}_ses-{trial_id:02}"
 

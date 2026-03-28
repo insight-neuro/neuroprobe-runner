@@ -192,7 +192,6 @@ def within_session_splits(
     # shuffle=False is important to avoid correlated train/test splits!
 
     for train_idx, test_idx in kf.split(dataset):  # type: ignore
-        # Skip empty splits
         if len(test_idx) == 0 or len(train_idx) == 0:
             continue
 

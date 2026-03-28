@@ -20,12 +20,11 @@ class Runner(NeuroprobeRunner):
         cls,
         train_ds: BrainTreebankDataset,
         val_ds: BrainTreebankDataset,
-        data_slice: slice,
     ) -> tuple[StandardScaler, LogisticRegression]:
         model = LogisticRegression()
 
         x_train = np.array(
-            [feature.data[:, data_slice].float().numpy() for feature in train_ds]
+            [feature.ieeg.float().numpy() for feature in train_ds]
         )  # shape: (num_samples, num_channels, num_timepoints)
         y_train = np.array(
             [feature.label for feature in train_ds]
@@ -47,11 +46,10 @@ class Runner(NeuroprobeRunner):
         cls,
         ctx: tuple[StandardScaler, LogisticRegression],
         test_ds: BrainTreebankDataset,
-        data_slice: slice,
     ) -> dict[str, Any]:
         scaler, model = ctx
         x_test = np.array(
-            [feature.data[:, data_slice].float().numpy() for feature in test_ds]
+            [feature.ieeg.float().numpy() for feature in test_ds]
         )  # shape: (num_samples, num_channels, num_timepoints)
         y_test = np.array(
             [feature.label for feature in test_ds]
