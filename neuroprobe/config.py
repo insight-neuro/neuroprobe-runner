@@ -4,12 +4,11 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import Literal, get_args
 
-
 import chz
 import torch
 from chz.validators import ge, lt
 
-from .load import electrodes
+from .annotations import electrodes
 
 REGRESSION_TASKS = [
     "frame_brightness",

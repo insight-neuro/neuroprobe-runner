@@ -24,7 +24,7 @@ class Runner(NeuroprobeRunner):
         model = LogisticRegression()
 
         x_train = np.array(
-            [feature.ieeg.float().numpy() for feature in train_ds]
+            [feature.signals.float().numpy() for feature in train_ds]
         )  # shape: (num_samples, num_channels, num_timepoints)
         y_train = np.array(
             [feature.label for feature in train_ds]
@@ -49,7 +49,7 @@ class Runner(NeuroprobeRunner):
     ) -> dict[str, Any]:
         scaler, model = ctx
         x_test = np.array(
-            [feature.ieeg.float().numpy() for feature in test_ds]
+            [feature.signals.float().numpy() for feature in test_ds]
         )  # shape: (num_samples, num_channels, num_timepoints)
         y_test = np.array(
             [feature.label for feature in test_ds]

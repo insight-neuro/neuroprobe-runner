@@ -3,10 +3,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
+from crane import CraneFeature
 
+from .annotations import get_movie_name, pitch_volume_features, time_alignment_features
 from .config import NeuroprobeConfig, Task
-from .feature import NeuroprobeFeature
-from .load import get_movie_name, pitch_volume_features, time_alignment_features
 from .subject import BrainTreebankSubject
 
 # Defining the names of evaluations and preparing them for downstream processing
@@ -48,6 +48,13 @@ all_tasks = (
     + ["face_num", "word_gap", "word_index"]
     + classification_variables
 )
+
+
+class NeuroprobeFeature(CraneFeature):
+    """CraneFeature subclass for the Neuroprobe dataset, with additional attributes for task labels."""
+
+    label: int
+    """Task label for the sample, e.g., 0 or 1 for binary classification."""
 
 
 class BrainTreebankDataset(torch.utils.data.Dataset):
@@ -305,15 +312,8 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
         start_time = est_idx - self.cfg.word_onset_window_start
         end_time = est_idx + self.cfg.word_onset_window_end
 
-        ieeg, channels = self.subject.load_neural_data(
+        feat = self.subject.load_neural_data(
             self.trial_id, start=start_time, end=end_time
         )
-
-        feat = NeuroprobeFeature(
-            ieeg=ieeg,
-            channels=channels,
-            sampling_rate=self.cfg.sampling_rate,
-            label=label,
-        )
-        feat = feat.to(self.cfg.tensor_dtype)
-        return feat
+        feat["label"] = label
+        return feat.to(self.cfg.tensor_dtype)  # type: ignore[return-value]

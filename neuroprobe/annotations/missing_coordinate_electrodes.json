@@ -1,0 +1,25 @@
+{
+    "sub_1": ["F3cId10"],
+    "sub_2": [],
+    "sub_3": [
+        "F3c9",
+        "F3c10",
+        "T1aIc1",
+        "T1aIc2",
+        "P2a10",
+        "O1aIb2",
+        "O1aIb3",
+        "O1aIb4",
+        "O1aIb5",
+        "O1aIb6",
+        "O1aIb7",
+        "O1aIb8"
+    ],
+    "sub_4": ["LT1aIb10", "LF3bIa12"],
+    "sub_5": [],
+    "sub_6": [],
+    "sub_7": ["LF3aOFa16", "LF1cCb12"],
+    "sub_8": ["F2bCb6", "F2bCb14"],
+    "sub_9": ["P2a6", "P2a7", "P2a8"],
+    "sub_10": ["T1aIa4", "P2cCc5"]
+}
