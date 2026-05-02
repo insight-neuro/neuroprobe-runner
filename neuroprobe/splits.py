@@ -1,7 +1,6 @@
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 
 import chz
-import numpy as np
 from sklearn.model_selection import KFold
 from torch.utils.data import ConcatDataset, Dataset, Subset
 
@@ -10,16 +9,17 @@ from .dataset import BrainTreebankDataset
 from .subject import BrainTreebankSubject
 
 
-class _SubsetWithAttr(Subset):
-    def __init__(self, dataset: Dataset, indices: Sequence[int] | np.ndarray):
-        super().__init__(dataset, indices)  # type: ignore
-
-    def __getattr__(self, name: str):
-        # Delegate attribute access to the underlying dataset
-        return getattr(self.dataset, name)
+# Wrapper classes to provide `signals` and `labels` attributes for
+# Subset and ConcatDataset, as well as typing for type checkers.
+class _SubsetBrainTreebank(Subset, BrainTreebankDataset): ...
 
 
-def _val_test_split(dataset: Dataset, val_size: float = 0.5) -> tuple[Dataset, Dataset]:
+class _ConcatBrainTreebankDataset(ConcatDataset, BrainTreebankDataset): ...
+
+
+def _val_test_split(
+    dataset: Dataset, val_size: float = 0.5
+) -> tuple[BrainTreebankDataset, BrainTreebankDataset]:
     """Split a dataset into validation and test sets based."""
     test_size = len(dataset)  # type: ignore
     val_size = int(test_size * val_size)
@@ -27,8 +27,8 @@ def _val_test_split(dataset: Dataset, val_size: float = 0.5) -> tuple[Dataset, D
     val_indices = list(range(val_size))
     test_indices = list(range(val_size, test_size))
 
-    val_ds = _SubsetWithAttr(dataset, val_indices)
-    test_ds = _SubsetWithAttr(dataset, test_indices)
+    val_ds = _SubsetBrainTreebank(dataset, val_indices)
+    test_ds = _SubsetBrainTreebank(dataset, test_indices)
 
     return val_ds, test_ds
 
@@ -40,7 +40,7 @@ def cross_subject_splits(
     test_trial_id: int,
     task: Task,
     include_all_train_subjects: bool = False,
-) -> Iterator[dict[str, Dataset]]:
+) -> Iterator[dict[str, BrainTreebankDataset]]:
     """Generate train/test splits for Cross-Subject Task.
 
     This function creates train/test splits by using one subject and movie as the test set,
@@ -55,7 +55,7 @@ def cross_subject_splits(
         include_all_other_trials (bool, optional): if True, include all other trials for training (defaults to False). If False, only include subject 2 trial 4 for training (NOTE: for Neuroprobe, there is no choice).
 
     Returns:
-        Iterator[dict[str, Dataset]]: An iterator over dictionaries, each containing:
+        Iterator[dict[str, BrainTreebankDataset]]: An iterator over dictionaries, each containing:
             - train_dataset (BrainTreebankDataset): Training dataset
             - val_dataset (BrainTreebankDataset): Validation dataset
             - test_dataset (BrainTreebankDataset): Test dataset
@@ -97,7 +97,7 @@ def cross_session_splits(
     test_trial_id: int,
     task: Task,
     include_all_other_trials: bool = False,
-) -> Iterator[dict[str, Dataset]]:
+) -> Iterator[dict[str, BrainTreebankDataset]]:
     """Generate train/test splits for Cross-Session Task.
 
     This function creates train/test splits by using one movie as the test set and all other
@@ -112,7 +112,7 @@ def cross_session_splits(
         include_all_other_trials (bool, optional): if True, include all other trials for training (defaults to False). If False, only include the longest other trial for training.
 
     Returns:
-        Iterator[dict[str, Dataset]]: An iterator over dictionaries, each containing:
+        Iterator[dict[str, BrainTreebankDataset]]: An iterator over dictionaries, each containing:
             - train_dataset (BrainTreebankDataset): Training dataset
             - val_dataset (BrainTreebankDataset): Validation dataset
             - test_dataset (BrainTreebankDataset): Test dataset
@@ -139,7 +139,7 @@ def cross_session_splits(
             BrainTreebankDataset(cfg, test_subject, train_trial_id, task)
             for train_trial_id in train_trial_ids
         ]
-        train_ds = ConcatDataset(train_datasets)
+        train_ds = _ConcatBrainTreebankDataset(train_datasets)
     else:
         if not isinstance(cfg, NeuroprobeLiteConfig):
             train_trial_id = cfg.longest_trial[test_subject.subject_id][0]
@@ -167,7 +167,7 @@ def cross_session_splits(
 
 def within_session_splits(
     cfg: NeuroprobeConfig, test_subject, test_trial_id, task: Task
-) -> Iterator[dict[str, Dataset]]:
+) -> Iterator[dict[str, BrainTreebankDataset]]:
     """Generate train/test splits for Within Session Task.
 
     This function performs k-fold cross validation on data from a single subject and movie.
@@ -195,8 +195,8 @@ def within_session_splits(
         if len(test_idx) == 0 or len(train_idx) == 0:
             continue
 
-        train_ds = _SubsetWithAttr(dataset, train_idx)
-        test_ds = _SubsetWithAttr(dataset, test_idx)
+        train_ds = _SubsetBrainTreebank(dataset, train_idx.tolist())
+        test_ds = _SubsetBrainTreebank(dataset, test_idx.tolist())
         val_ds, test_ds = _val_test_split(test_ds)
 
         yield {

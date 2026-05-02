@@ -29,19 +29,24 @@ class NeuroprobeRunner(ABC):
     - organization: The author's affiliation.
     - organization_url: The homepage of the organization.
 
-    Additionally, the users must implement the following class methods:
+    Additionally, the users must implement the following class method:
 
-    - finetune(cls, train_ds, val_ds, *args, **kwargs) -> ctx:
-        This method should define the finetuning procedure on the training dataset and return any necessary context for evaluation.
-    - evaluate(cls, ctx, test_ds, *args, **kwargs) -> dict[str, Any]:
-        This method should define the evaluation procedure on the test dataset using the context returned by finetune and return a dictionary of evaluation results.
-
-    To run, the easiest way is using chz's nested entry point:
+    - evaluate_fold(cls, train_ds, val_ds, test_ds, *args, **kwargs) -> dict[str, Any]:
+        This method should define the evaluation procedure for a single fold of the data and return a dictionary of evaluation results.
+        
+    To run, the easiest way is using chz's nested entry point, as it provides a CLI:
 
     ```py
     class Runner(NeuroprobeRunner): ...
 
     chz.nested_entrypoint(Runner.run)
+    ```
+
+    Or otherwise, with a configuration object:
+
+    ```py
+    cfg = NeuroprobeConfig(...)
+    Runner.run(cfg)
     ```
     """
 
@@ -176,12 +181,12 @@ class NeuroprobeRunner(ABC):
                     }
 
                     for fold in folds:
-                        ctx = cls.finetune(
-                            fold["train_dataset"], fold["val_dataset"], *args, **kwargs
-                        )
-
-                        fold_results = cls.evaluate(
-                            ctx, fold["test_dataset"], *args, **kwargs
+                        fold_results = cls.evaluate_fold(
+                            fold["train_dataset"],
+                            fold["val_dataset"],
+                            fold["test_dataset"],
+                            *args,
+                            **kwargs,
                         )
                         trial_results["folds"].append(fold_results)
 
@@ -199,38 +204,24 @@ class NeuroprobeRunner(ABC):
 
     @classmethod
     @abstractmethod
-    def finetune(
+    def evaluate_fold(
         cls,
         train_ds: BrainTreebankDataset,
         val_ds: BrainTreebankDataset,
+        test_ds: BrainTreebankDataset,
         *args,
         **kwargs,
-    ) -> Any:
-        """Finetune a model on the training dataset and evaluate on the validation dataset.
-
-        This method should be implemented by subclasses to define the specific finetuning procedure.
+    ) -> dict[str, Any]:
+        """This method should be implemented by subclasses to define the
+        specific evaluation procedure for a single fold of the data.
 
         Args:
             train_ds (BrainTreebankDataset): The training dataset.
             val_ds (BrainTreebankDataset): The validation dataset.
-
-        Returns:
-            This should return a context object that will be passed to the evaluate method, containing any necessary information for evaluation.
-        """
-        pass
-
-    @classmethod
-    @abstractmethod
-    def evaluate(
-        cls, ctx: Any, test_ds: BrainTreebankDataset, *args, **kwargs
-    ) -> dict[str, Any]:
-        """Evaluate a model on the test dataset.
-
-        Args:
-            ctx: The context object returned by the finetune method, containing any necessary information for evaluation.
             test_ds (BrainTreebankDataset): The test dataset.
 
         Returns:
-            A dictionary containing the evaluation results.
+            A dictionary containing the evaluation results, e.g.
+            `{"train_accuracy": 0.9, "test_accuracy": 0.85, "train_auroc": 0.95, "test_auroc": 0.9}`
         """
         pass

@@ -37,7 +37,7 @@ By **Andrii Zahorodnii¹²***, **Christopher Wang¹***, **Bennett Stankovits¹**
 ## Overview
 Neuroprobe is a benchmark for evaluating EEG/iEEG/sEEG/ECoG foundation models and understanding how the brain processes information across multiple tasks. It analyzes intracranial recordings during naturalistic stimuli using techniques from modern natural language processing. By probing neural responses across many tasks simultaneously, Neuroprobe aims to reveal the functional organization of the brain and relationships between different cognitive processes. The benchmark includes tools for decoding neural signals using both simple linear models and advanced neural networks, enabling researchers to better understand how the brain processes information across vision, language, and audio domains.
 
-Please see the full technical paper for more details.
+Please see the full [technical paper](https://arxiv.org/pdf/2509.21671) for more details.
 
 ## Getting Started
 
@@ -45,14 +45,16 @@ Please see the full technical paper for more details.
 
 1. Install the package:
 ```bash
-pip install neuroprobe
+pip install neuroprobe-runner
 ```
 
-2. If you haven't yet, download the BrainTreebank dataset from [the official release webpage](https://braintreebank.dev/), or using the following script (located [here](https://github.com/azaho/neuroprobe/blob/main/braintreebank_download_extract.py)):
+2. Download the [BrainTreebank dataset](https://braintreebank.dev/), using our [brainsets](https://github.com/insight-neuro/brainsets) fork.  Note that this script requires you to have [uv](https://docs.astral.sh/uv/#installation) installed.
+
 ```bash
-python braintreebank_download_extract.py --lite
+./data.sh --lite
 ```
-(lite is an optional flag; if only using Neuroprobe as a benchmark, this flag will reduce the number of downloaded files by >50% by removing unnecessary files.)
+
+(Lite is an optional flag; if only using Neuroprobe as a benchmark, this flag will reduce the number of downloaded files by >50% by removing unnecessary files.)
 
 ### Code Example
 

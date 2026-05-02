@@ -45,7 +45,7 @@ class NeuroprobeConfig:
         doc="Root directory of the Braintreebank dataset.",
     )
 
-    results_dir: Path | str = Path("results")
+    results_dir: Path | str = Path("eval_results")
     """Directory where evaluation outputs are stored.
     Should be shared across runs for leaderboard comparability."""
 

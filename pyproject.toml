@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "neuroprobe"
-version = "0.1.7"
+version = "0.2.0"
 authors = [
     {name = "Andrii Zahorodnii"},
     {name = "Christopher Wang"},
@@ -17,9 +17,9 @@ authors = [
 ]
 description = "Neuroprobe: Benchmark for Evaluating iEEG Foundation Models. Evaluating intracranial brain responses to naturalistic stimuli."
 readme = "README.md"
-license = "MIT"
-license-files = ["LICENSE"]
+license = { file = "LICENSE" }
 requires-python = ">=3.12"
+
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
@@ -35,6 +35,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+
 keywords = [
     "neuroscience",
     "brain",
@@ -51,52 +52,34 @@ keywords = [
     "machine-learning",
     "pytorch",
 ]
+
 dependencies = [
-    "torch",
-    "torchvision",
-    "h5py",
-    "pandas",
-    "numpy",
-    "scipy",
-    "scikit-learn",
-    "matplotlib",
-    "seaborn",
-    "psutil",
-    "scikit-learn"
+    "chz>=0.4.0",
+    "numpy>=2.4.4",
+    "pandas>=3.0.2",
+    "torch>=2.11.0",
+    "crane @ git+https://github.com/insight-neuro/crane",
+    "scikit-learn>=1.8.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "beautifulsoup4",
-    "requests",
-    "jupyter",
-    "ipykernel",
-    "matplotlib",
-    "seaborn",
-    "psutil",
+    "mypy>=1.20.2",
+    "pytest>=9.0.3",
+    "ruff>=0.15.12",
 ]
 
 [project.urls]
 Homepage = "https://neuroprobe.dev"
-Repository = "https://github.com/azaho/neuroprobe"
-"Bug Reports" = "https://github.com/neuroprobe/neuroprobe/issues"
+Repository = "https://github.com/insight-neuro/neuroprobe"
+"Bug Reports" = "https://github.com/insight-neuro/neuroprobe/issues"
 
 [tool.setuptools]
 packages = ["neuroprobe"]
 
-[dependency-groups]
-dev = [
-    "chz>=0.4.0",
-    "jaxtyping>=0.3.9",
-    "crane @ git+https://github.com/insight-neuro/crane",
-]
-
-
 [tool.ruff]
 target-version = "py312"
-# line-length = 320
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]       # basics: style, flakes, isort, pyupgrade, bugbear
 ignore = ["E501", "E402", "F722", "B905"] # let the formatter handle wrapping
-

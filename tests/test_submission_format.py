@@ -2,6 +2,8 @@
 """
 Test suite to validate Neuroprobe leaderboard submission format.
 This test ensures all submissions follow the guidelines in SUBMIT.md.
+
+Make sure to have `pytest` installed to run this test suite.
 """
 
 import json

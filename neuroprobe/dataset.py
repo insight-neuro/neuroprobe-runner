@@ -90,9 +90,9 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
         self.trial_id = trial_id
         self.task = task
 
-        self.build_label_indices()
+        self._build_label_indices()
 
-    def build_label_indices(self):
+    def _build_label_indices(self):
         task_remapped = self.task
         if self.task in single_float_variables_name_remapping:
             task_remapped = single_float_variables_name_remapping[self.task]
@@ -317,3 +317,13 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
         )
         feat["label"] = label
         return feat.to(self.cfg.tensor_dtype)  # type: ignore[return-value]
+
+    @property
+    def signals(self) -> np.ndarray:
+        """Neural signals for all samples in the dataset, as a numpy array of shape (num_samples, num_channels, num_timepoints)."""
+        return np.array([feature.signals.float().numpy() for feature in self])
+
+    @property
+    def labels(self) -> np.ndarray:
+        """Labels for all samples in the dataset, as a numpy array of shape (num_samples,)."""
+        return np.array([feature.label for feature in self])
