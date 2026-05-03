@@ -3,7 +3,7 @@ include README.md
 include LICENSE
 
 # Include the configuration and data files
-recursive-include neuroprobe/data *
+recursive-include neuroprobe/annotations *
 
 # Include any JSON schema files
 include leaderboard_schema.json
