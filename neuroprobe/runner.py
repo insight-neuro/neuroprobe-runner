@@ -33,7 +33,7 @@ class NeuroprobeRunner(ABC):
 
     - evaluate_fold(cls, train_ds, val_ds, test_ds, *args, **kwargs) -> dict[str, Any]:
         This method should define the evaluation procedure for a single fold of the data and return a dictionary of evaluation results.
-        
+
     To run, the easiest way is using chz's nested entry point, as it provides a CLI:
 
     ```py

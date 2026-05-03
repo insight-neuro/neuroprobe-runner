@@ -45,10 +45,16 @@ Please see the full [technical paper](https://arxiv.org/pdf/2509.21671) for more
 
 1. Install the package:
 ```bash
-pip install neuroprobe-runner
+pip install "neuroprobe @ git+https://github.com/insight-neuro/neuroprobe-runner"
 ```
 
-2. Download the [BrainTreebank dataset](https://braintreebank.dev/), using our [brainsets](https://github.com/insight-neuro/brainsets) fork.  Note that this script requires you to have [uv](https://docs.astral.sh/uv/#installation) installed.
+
+2. Update the `ROOT_DIR_BRAINTREEBANK` environment variable to point to the location where you want to store the BrainTreebank dataset. You can for example do this by creating a `.env` file in the root of this repository with the following content:
+```
+ROOT_DIR_BRAINTREEBANK=/path/to/braintreebank
+```
+
+3. Download the [BrainTreebank dataset](https://braintreebank.dev/), using our [brainsets](https://github.com/insight-neuro/brainsets) fork to properly preprocess the dataset. Note that this script requires you to have [uv](https://docs.astral.sh/uv/#installation) installed.
 
 ```bash
 ./data.sh --lite
@@ -59,6 +65,7 @@ pip install neuroprobe-runner
 ### Code Example
 
 Start experimenting with [quickstart.ipynb](https://github.com/azaho/neuroprobe/blob/main/examples/quickstart.ipynb) to create datasets and evaluate models. For example:
+
 ```python
 import os, torch
 os.environ['ROOT_DIR_BRAINTREEBANK'] = '/path/to/braintreebank/'  # NOTE: Change this to your own path, or define an environment variable elsewhere
