@@ -39,6 +39,22 @@ Neuroprobe is a benchmark for evaluating EEG/iEEG/sEEG/ECoG foundation models an
 
 Please see the full [technical paper](https://arxiv.org/pdf/2509.21671) for more details.
 
+**Table of Contents**
+
+- [What's New](#whats-new)
+- [Installation](#installation)
+- [Getting Started](#getting-started)
+- [Leaderboard Requirements](#leaderboard-requirements)
+- [Citation](#citation)
+
+### What's New
+
+This repository is a fork of the original [Neuroprobe repository](https://github.com/insight-neuro/neuroprobe), designed to be easier to use to minimize barriers to entry for researchers who want to evaluate their foundation models. The original repository is still available and will be maintained, but this fork will be the main repository for future development and updates. The main differences between this repository and the original are:
+
+- A new `NeuroprobeRunner` class that provides a simple interface for training and evaluating models on the Neuroprobe benchmark. This class handles all the data loading, preprocessing, and evaluation logic, so you can focus on building your model.
+- Config-driven design: the `NeuroprobeRunner` class is designed to be configured using a `NeuroprobeConfig` object, which allows you to easily customize the data loading, preprocessing, and evaluation parameters without having to modify constants.
+- Now needs `BraintreeBank` to be preprocessed using our `brainsets` fork, which ensures that the data is properly preprocessed and formatted for use with the `NeuroprobeRunner` class. This also allows us to remove a lot of the data preprocessing code from this repository, which simplifies the codebase and makes it easier to maintain. Additionally, some options that were previously available in the original repository have been removed to simplify the interface, for instance different coordinate systems for the electrode locations and the ability to directly request data indices instead of raw signals.
+
 ### Installation
 
 1. Install the package:
@@ -60,7 +76,7 @@ ROOT_DIR_BRAINTREEBANK=/path/to/braintreebank
 
 (Lite is an optional flag; if only using Neuroprobe as a benchmark, this flag will reduce the number of downloaded files by >50% by removing unnecessary files.)
 
-### Geting Started
+### Getting Started
 
 To get started, first check out [quickstart.ipynb](https://github.com/azaho/neuroprobe/blob/main/examples/quickstart.ipynb), which will show you how to load and examine the data.
 
