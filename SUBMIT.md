@@ -2,31 +2,11 @@
 
 This document describes the steps which you must follow to submit your results to the public Neuroprobe leaderboard at [https://neuroprobe.dev](https://neuroprobe.dev). 
 
-To get a sense of how to use Neuroprobe to evaluate your models, please check out the `quickstart.ipynb` notebook at [examples/quickstart.ipynb](https://github.com/azaho/neuroprobe/blob/main/examples/quickstart.ipynb).
-For more advanced examples, please see the rest of the [examples/](https://github.com/azaho/neuroprobe/blob/main/examples/) directory!
+To get a sense of how to use Neuroprobe to evaluate your models, please check out the `quickstart.ipynb` notebook at [examples/quickstart.ipynb](https://github.com/insight-neuro/neuroprobe/blob/main/examples/quickstart.ipynb). Once you've run through that notebook, check out the [logistic regression runner](https://github.com/insight-neuro/neuroprobe/blob/main/examples/logistic_regression_runner.py).
 
 ## Train/Val/Test Splits
 
-To submit to the Neuroprobe leaderboard, you MUST use the exact train/val/test splits that are provided by the Neuroprobe package:
-```python
-from neuroprobe import BrainTreebankSubject
-subject = BrainTreebankSubject(subject_id=1, cache=True, 
-                               dtype=torch.float32, coordinates_type="cortical")
-
-# options: generate_splits_within_session, generate_splits_cross_session, generate_splits_cross_subject
-from neuroprobe import generate_splits_cross_session
-splits = generate_splits_cross_session(test_subject=subject, test_trial_id=2, 
-                                       eval_name="gpt2_surprisal", output_indices=False)
-print(splits[0])
-```
-will give the following output:
-```python
-{
-    "train_dataset": BrainTreebankSubjectTrialBenchmarkDataset,
-    "val_dataset": BrainTreebankSubjectTrialBenchmarkDataset,
-    "test_dataset": BrainTreebankSubjectTrialBenchmarkDataset
-}
-```
+To submit to the Neuroprobe leaderboard, you MUST use the exact train/val/test splits that are provided by the Neuroprobe package. If you use the `NeuroprobeRunner` class to run your evaluation, this will be provided for you by default!
 
 ## Pretraining guidelines
 For the validity of the evaluation on Neuroprobe, **no models can be pretrained on the same data that underlies the Neuroprobe evaluation**. So, the following sessions are off-limits, with pretraining on them NOT allowed:
@@ -50,9 +30,13 @@ Please see these session parts uploaded [here (Google Drive link)](https://drive
 The files in the link above ideally should be fine to just drop into the braintreebank folder, as they follow the same h5 format as the other trials.
 
 ## Formatting results
-Note that for the Cross-Session split, Neuroprobe contains 12 recording sessions x 15 tasks = 180 different evaluations, which will be eventually combined together on the leaderboard. (For the Cross-Subject split, subject 2 is not evaluated on, which leaves 10 recording sessions x 15 tasks = 150 evaluations.)
 
-The evaluation results are aggregated per task, in files named `population_TASKNAME.json`. Those JSON files must be structured like below:
+Note that for the Cross-Session split, Neuroprobe contains 12 recording sessions x 15 tasks = 180 different evaluations, which will be eventually combined together on the leaderboard. (For the Cross-Subject split, subject 2 is not evaluated on, which leaves 10 recording sessions x 15 tasks = 150 evaluations.).
+
+The leaderboard expects a specific format for the evaluation results, which is described below. Note that if you use the `NeuroprobeRunner` class to run your evaluation, the results will be automatically saved in the correct format for you, so you don't have to worry about this formatting step.
+
+ However, if you want to run your own evaluation pipeline without using the `NeuroprobeRunner` class, make sure to format your results according to the guidelines below before submitting to the leaderboard: The evaluation results are aggregated per task, in files named `population_TASKNAME.json`. Those JSON files must be structured as below:
+
 ```python
 {
     "model_name": "Linear Regression",           # Name of the model
@@ -63,7 +47,7 @@ The evaluation results are aggregated per task, in files named `population_TASKN
     "timestamp": 0,                              # Timestamp associated with the result.
 
     "evaluation_results": {
-        "btbank1_1": {                           # 
+        "btbank1_1": {
             "population": {
                 "one_second_after_onset": {
                     "time_bin_start": 0.0,
@@ -128,4 +112,5 @@ SIGN **Full Name Of Submitting Author**
 ```
 
 Finally, submit a pull request from the repository to the Neuroprobe repository. We will review it as soon as possible. If the pull request gets merged, the results will be automatically updated on the Neuroprobe website. 
+
 NOTE: The Neuroprobe repository contains automatic tests to ensure the format of the submission is correct according to the 'Submission Guidelines' section above. If a test fails, please note what was the issue, withdraw the PR, fix the issue, and resubmit the PR. You may run the tests on your own local copy to ensure they pass before submitting the PR.

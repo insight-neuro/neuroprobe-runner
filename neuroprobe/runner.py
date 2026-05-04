@@ -31,7 +31,7 @@ class NeuroprobeRunner(ABC):
 
     Additionally, the users must implement the following class method:
 
-    - evaluate_fold(cls, train_ds, val_ds, test_ds, *args, **kwargs) -> dict[str, Any]:
+    - evaluate_fold(cls, train_ds, val_ds, test_ds) -> dict[str, Any]:
         This method should define the evaluation procedure for a single fold of the data and return a dictionary of evaluation results.
 
     To run, the easiest way is using chz's nested entry point, as it provides a CLI:
@@ -64,13 +64,11 @@ class NeuroprobeRunner(ABC):
     """Link to organization's logo (optional)."""
 
     @classmethod
-    def run(cls, cfg: NeuroprobeConfig, *args, **kwargs):
+    def run(cls, cfg: NeuroprobeConfig): 
         """Run the Neuroprobe evaluation according to the provided configuration.
 
         Args:
             cfg (NeuroprobeConfig): Configuration for the evaluation, including dataset paths, evaluation splits, tasks, and other parameters.
-            *args, **kwargs: Additional arguments that will be passed to the finetune and evaluate methods.
-
         """
 
         np.random.seed(cfg.random_seed)
@@ -185,8 +183,6 @@ class NeuroprobeRunner(ABC):
                             fold["train_dataset"],
                             fold["val_dataset"],
                             fold["test_dataset"],
-                            *args,
-                            **kwargs,
                         )
                         trial_results["folds"].append(fold_results)
 
@@ -208,9 +204,7 @@ class NeuroprobeRunner(ABC):
         cls,
         train_ds: BrainTreebankDataset,
         val_ds: BrainTreebankDataset,
-        test_ds: BrainTreebankDataset,
-        *args,
-        **kwargs,
+        test_ds: BrainTreebankDataset
     ) -> dict[str, Any]:
         """This method should be implemented by subclasses to define the
         specific evaluation procedure for a single fold of the data.

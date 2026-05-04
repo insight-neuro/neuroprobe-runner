@@ -1,3 +1,30 @@
+"""
+This file provides an example of how to set up a training and evaluation pipeline using the
+`NeuroprobeRunner` class. It trains a simple logistic regression model, returning accuracy
+and AUROC metrics on the train and test sets, as expected by the leaderboard.
+ 
+You can use this as a template for setting up your own training and evaluation pipelines
+with different models and metrics.
+
+To run this example, make sure you have the Neuroprobe library installed and the data downloaded,
+and the `ROOT_DIR_BRAINTREEBANK` environment variable set to the path of the data directory. 
+
+Then, you can run this script with:
+```bash
+python examples/logistic_regression_runner.py [config overrides]
+```
+
+Using the `chz` configuration framework, any overrides of the sort `xxx=yyy`
+ will be passed as arguments to the `NeuroprobeConfig` object, overriding the default values.
+
+For example, to override the data directory, you can run:
+```bash
+python examples/logistic_regression_runner.py data_dir="/path/to/data"
+```
+
+All outputs can be found in the `eval_results` folder, ready to be submitted to the leaderboard.
+"""
+
 from typing import Any
 
 import chz
