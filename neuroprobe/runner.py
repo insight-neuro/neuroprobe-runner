@@ -8,6 +8,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 import torch
+from filelock import FileLock
 
 from neuroprobe.dataset import BrainTreebankDataset
 
@@ -64,7 +65,7 @@ class NeuroprobeRunner(ABC):
     """Link to organization's logo (optional)."""
 
     @classmethod
-    def run(cls, cfg: NeuroprobeConfig): 
+    def run(cls, cfg: NeuroprobeConfig):
         """Run the Neuroprobe evaluation according to the provided configuration.
 
         Args:
@@ -96,31 +97,23 @@ class NeuroprobeRunner(ABC):
 
             for task in cfg.tasks:
                 file_path = split_dir / f"population_{task}.json"
+                lock_path = file_path.with_suffix(file_path.suffix + ".lock")
 
                 skip_trials: set[str] = set()
-                if file_path.exists():
-                    with open(file_path) as f:
-                        results = json.load(f)
-                    skip_trials.update(results.get("evaluation_results", {}).keys())
+                with FileLock(lock_path):
+                    if file_path.exists():
+                        with open(file_path) as f:
+                            skip_trials.update(
+                                json.load(f).get("evaluation_results", {}).keys()
+                            )
 
-                    logger.info(
-                        "Resuming existing results | file=%s | skipping=%d trials",
-                        file_path,
-                        len(skip_trials),
-                    )
+                        logger.info(
+                            "Resuming existing results | file=%s | skipping=%d trials",
+                            file_path,
+                            len(skip_trials),
+                        )
 
-                else:
-                    logger.info("Initializing new results file → %s", file_path)
-                    results = {
-                        "model_name": cls.model_name,
-                        "author": cls.author,
-                        "description": cls.description,
-                        "organization": cls.organization,
-                        "organization_url": cls.organization_url,
-                        "timestamp": time.time(),
-                        "evaluation_results": {},
-                    }
-
+                results = {}
                 for subject_id, trial_id in cfg.subject_trials:
                     trial_session_tag = f"btbank{subject_id}_{trial_id}"
                     if trial_session_tag in skip_trials:
@@ -186,17 +179,40 @@ class NeuroprobeRunner(ABC):
                         )
                         trial_results["folds"].append(fold_results)
 
-                    results["evaluation_results"].setdefault(trial_session_tag, {})
-                    results["evaluation_results"][trial_session_tag]["population"] = {
-                        "one_second_after_onset": trial_results
+                    results[trial_session_tag] = {
+                        "population": {
+                            "one_second_after_onset": trial_results
+                        }
                     }
 
                     logger.info("Completed trial=%s", trial_session_tag)
 
-                with open(file_path, "w") as f:
-                    json.dump(results, f, indent=4)
+                with FileLock(lock_path):
+                    if file_path.exists():
+                        with open(file_path) as f:
+                            existing_results = json.load(f)
+                    else:
+                        logger.info("Initializing new results file → %s", file_path)
+                        existing_results = {
+                            "model_name": cls.model_name,
+                            "author": cls.author,
+                            "description": cls.description,
+                            "organization": cls.organization,
+                            "organization_url": cls.organization_url,
+                            "timestamp": time.time(),
+                            "evaluation_results": {},
+                        }
 
-                logger.info("Saved results → %s", file_path)
+                    for trial_session_tag, trial_payload in results.items():
+                        existing_results["evaluation_results"].setdefault(
+                            trial_session_tag,
+                            trial_payload,
+                        )
+
+                    with open(file_path, "w") as f:
+                        json.dump(existing_results, f, indent=4)
+
+                    logger.info("Saved results → %s", file_path)
 
     @classmethod
     @abstractmethod
@@ -204,7 +220,7 @@ class NeuroprobeRunner(ABC):
         cls,
         train_ds: BrainTreebankDataset,
         val_ds: BrainTreebankDataset,
-        test_ds: BrainTreebankDataset
+        test_ds: BrainTreebankDataset,
     ) -> dict[str, Any]:
         """This method should be implemented by subclasses to define the
         specific evaluation procedure for a single fold of the data.

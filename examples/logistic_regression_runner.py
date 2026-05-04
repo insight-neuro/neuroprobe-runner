@@ -2,12 +2,12 @@
 This file provides an example of how to set up a training and evaluation pipeline using the
 `NeuroprobeRunner` class. It trains a simple logistic regression model, returning accuracy
 and AUROC metrics on the train and test sets, as expected by the leaderboard.
- 
+
 You can use this as a template for setting up your own training and evaluation pipelines
 with different models and metrics.
 
 To run this example, make sure you have the Neuroprobe library installed and the data downloaded,
-and the `ROOT_DIR_BRAINTREEBANK` environment variable set to the path of the data directory. 
+and the `ROOT_DIR_BRAINTREEBANK` environment variable set to the path of the data directory.
 
 Then, you can run this script with:
 ```bash

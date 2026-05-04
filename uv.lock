@@ -631,6 +631,7 @@ source = { editable = "." }
 dependencies = [
     { name = "chz" },
     { name = "crane" },
+    { name = "filelock" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "scikit-learn" },
@@ -648,6 +649,7 @@ dev = [
 requires-dist = [
     { name = "chz", specifier = ">=0.4.0" },
     { name = "crane", git = "https://github.com/insight-neuro/crane" },
+    { name = "filelock", specifier = ">=3.25.2" },
     { name = "numpy", specifier = ">=2.4.4" },
     { name = "pandas", specifier = ">=3.0.2" },
     { name = "scikit-learn", specifier = ">=1.8.0" },

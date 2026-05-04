@@ -76,7 +76,7 @@ echo "Eval tasks=${EVAL_NAME}"
 
 uv run examples/logistic_regression_runner.py \
     tasks="${EVAL_NAME}" \
-    subject_trials="[${SUBJECT}, ${TRIAL}]" \
+    subject_trials="[(${SUBJECT}, ${TRIAL})]" \
     eval_splits="${SPLITS_TYPE}"
 
 echo "Evaluation completed at $(date)."

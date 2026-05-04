@@ -45,8 +45,8 @@ class BrainTreebankSubject:
         return domain.start.item(), domain.end.item()  # type: ignore[attr-defined]
 
     def load_neural_data(
-            self, trial_id: int, start: float | None = None, end: float | None = None
-        ) -> CraneFeature:
+        self, trial_id: int, start: float | None = None, end: float | None = None
+    ) -> CraneFeature:
         """Load neural data for the given trial and time window."""
         recording_id = f"sub-{self.subject_id:03}_ses-{trial_id:02}"
 
