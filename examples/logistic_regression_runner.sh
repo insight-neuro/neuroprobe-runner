@@ -12,6 +12,6 @@ export ROOT_DIR_BRAINTREEBANK="$SCRATCH/neuroprobe/wang_barbu_braintreebank_2023
 
 echo "Running Logistic Regression evaluation at $(date)..."
 
-uv run examples/eval_logistic_regression.py
+uv run examples/logistic_regression_runner.py
 
 echo "Evaluation completed at $(date)."

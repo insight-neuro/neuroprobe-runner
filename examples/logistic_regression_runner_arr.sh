@@ -74,7 +74,7 @@ echo "Task ${SLURM_ARRAY_TASK_ID}/${expected_tasks}"
 echo "Subject=${SUBJECT}, Trial=${TRIAL}, Split=${SPLITS_TYPE}"
 echo "Eval tasks=${EVAL_NAME}"
 
-uv run examples/eval_logistic_regression.py \
+uv run examples/logistic_regression_runner.py \
     tasks="${EVAL_NAME}" \
     subject_trials="[${SUBJECT}, ${TRIAL}]" \
     eval_splits="${SPLITS_TYPE}"
