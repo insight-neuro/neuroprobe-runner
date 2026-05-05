@@ -80,11 +80,7 @@ class BrainTreebankDataset(torch.utils.data.Dataset):
 
         if task not in all_tasks:
             raise ValueError(f"Task must be one of {all_tasks}, not {task}")
-        if (subject.subject_id, trial_id) not in cfg.subject_trials:
-            raise ValueError(
-                f"Subject {subject.subject_id} trial {trial_id} not in {cfg.__class__.__name__}.subject_trials"
-            )
-
+        
         self.cfg = cfg
         self.subject = subject
         self.trial_id = trial_id
