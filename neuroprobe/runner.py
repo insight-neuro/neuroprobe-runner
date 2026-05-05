@@ -180,9 +180,7 @@ class NeuroprobeRunner(ABC):
                         trial_results["folds"].append(fold_results)
 
                     results[trial_session_tag] = {
-                        "population": {
-                            "one_second_after_onset": trial_results
-                        }
+                        "population": {"one_second_after_onset": trial_results}
                     }
 
                     logger.info("Completed trial=%s", trial_session_tag)

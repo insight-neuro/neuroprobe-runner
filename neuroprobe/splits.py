@@ -4,7 +4,7 @@ import chz
 from sklearn.model_selection import KFold
 from torch.utils.data import ConcatDataset, Dataset, Subset
 
-from .config import NeuroprobeConfig, NeuroprobeLiteConfig, Task
+from .config import NeuroprobeConfig, NeuroprobeFullConfig, Task
 from .dataset import BrainTreebankDataset
 from .subject import BrainTreebankSubject
 
@@ -141,7 +141,7 @@ def cross_session_splits(
         ]
         train_ds = _ConcatBrainTreebankDataset(train_datasets)
     else:
-        if not isinstance(cfg, NeuroprobeLiteConfig):
+        if not isinstance(cfg, NeuroprobeFullConfig):
             train_trial_id = cfg.longest_trial[test_subject.subject_id][0]
             if train_trial_id == test_trial_id:
                 train_trial_id = cfg.longest_trial[test_subject.subject_id][1]
@@ -166,7 +166,10 @@ def cross_session_splits(
 
 
 def within_session_splits(
-    cfg: NeuroprobeConfig, test_subject, test_trial_id, task: Task
+    cfg: NeuroprobeConfig,
+    test_subject: BrainTreebankSubject,
+    test_trial_id: int,
+    task: Task,
 ) -> Iterator[dict[str, BrainTreebankDataset]]:
     """Generate train/test splits for Within Session Task.
 

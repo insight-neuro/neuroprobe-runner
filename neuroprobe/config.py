@@ -171,7 +171,7 @@ class NeuroprobeNanoConfig(NeuroprobeConfig):
     )
 
 
-class NeurprobeFullConfig(NeuroprobeConfig):
+class NeuroprobeFullConfig(NeuroprobeConfig):
     max_samples: int | None = None
     subject_trials: Sequence[tuple[int, int]] = chz.field(
         default_factory=lambda: [
