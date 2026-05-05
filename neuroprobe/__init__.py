@@ -13,7 +13,7 @@ from .config import (
     NeuroprobeConfig,
     NeuroprobeLiteConfig,
     NeuroprobeNanoConfig,
-    NeurprobeFullConfig,
+    NeuroprobeFullConfig,
 )
 from .dataset import BrainTreebankDataset
 from .runner import NeuroprobeRunner
@@ -28,7 +28,7 @@ __all__ = [
     "NeuroprobeLiteConfig",
     "NeuroprobeNanoConfig",
     "NeuroprobeConfig",
-    "NeurprobeFullConfig",
+    "NeuroprobeFullConfig",
     "cross_session_splits",
     "cross_subject_splits",
     "within_session_splits",
